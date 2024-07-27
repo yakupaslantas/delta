@@ -1,0 +1,6 @@
+fade
+python-whois
+colorama
+requests
+rootchecker
+fade
