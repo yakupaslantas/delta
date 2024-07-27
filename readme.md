@@ -20,11 +20,42 @@ You can get
 - Network IP Adress
 - IP Version
 - IP Organization
-- Latitude and longitude
-- Detailed information about IPs homeland country
+- Latitude Information
+- Longitude INformation
+- Country
+- City
+- Postal Code
+- Region
+- Region Code
+- Country Name
+- Country Code
+- Country ISO3 Code
+- Capital City of Country
+- Country Timezone
+- Country UTC Code
+- Country Call Code
+- Country Currency
+- Country KM Area
+- Country Population
+  
 
 Also
 
-- You can save output data of query in a txt
+- You can save output data of query in a text file
+
+
+### Domain OSINT
+
+You can get
+ - Registrar Name
+ - Creation Date
+ - Expiration Date
+ - Name Server
+ - Whois Server
+ - Updated Date
+
+Also
+
+  - You can save output data of query in a text file
 
 ### New features coming soon!
