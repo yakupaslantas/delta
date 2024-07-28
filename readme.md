@@ -58,4 +58,16 @@ Also
 
   - You can save output data of query in a text file
 
+
+### Phone Number OSINT
+
+You can get 
+ - Country data
+ - Timezone Region
+ - Carrier Name
+
+Also
+
+  - You can save output of query in a text file
+
 ### New features coming soon!
