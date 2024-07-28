@@ -70,4 +70,4 @@ Also
 
   - You can save output of query in a text file
 
-### New features coming soon!
+### More features coming soon!
