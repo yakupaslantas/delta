@@ -6,6 +6,8 @@ import sys
 import fade
 import whois
 from rootchecker import rootchecker # yayyy this is my pacakge
+import phonenumbers
+from phonenumbers import geocoder, carrier, timezone
 
 
 
@@ -14,10 +16,12 @@ from rootchecker import rootchecker # yayyy this is my pacakge
 init(autoreset=True)
 
 is_termux = rootchecker.check_root()["running_on_termux"]
-version = "0.0.2"
+version = "0.0.3"
 default_input_text = f"{Fore.RED}{Style.BRIGHT}delta{Fore.BLUE}@python{sys.version_info[0]}.{sys.version_info[1]}.{sys.version_info[2]} {Style.RESET_ALL}$ "
-sigint = "Received keyboard interrupt, exiting."
+sigint = "\nReceived keyboard interrupt, exiting."
 version_fetch_url = "https://raw.githubusercontent.com/yakupaslantas/delta/main/etc/version.txt"
+enter_to_return = " Press [ ENTER ] key to return"
+
 
 
 
@@ -63,6 +67,9 @@ def generate_new_session():
         pass
     path = f"./session/{datetime.now().strftime('%Y%m%d%H%M%S')}/"
     os.mkdir(path)
+    os.mkdir(path+"phonenumberosint")
+    os.mkdir(path+"iposint")
+    os.mkdir(path+"whoisosint")
     return path
 
 
@@ -77,10 +84,94 @@ def clear():
 main_menu_choices = """
 
     0|  EXIT
+    c|  CHANGELOG
     
     1|  IP OSINT
     2|  Website OSINT
+    3|  Phone Number OSINT
 """
+
+
+changelog = f"""
+What's new in {version}
+
+- Added new osint option : phone numbers
+- Fixed two bugs that causing a exception when user try to save result of query in website osint result menu
+- Fixed four bugs that causing - Please type a valid option - to trigger even when its not needed
+- Added new feature : changelog screen
+- KeyboardInterrupt exception handler now buffers a new line before printing out - sigint - 
+"""
+
+
+
+def changelog_menu(update):
+    clear()
+    print(changelog)
+    try:
+        input(enter_to_return)
+        main(update)
+    except KeyboardInterrupt:
+        print(sigint)
+        sys.exit()
+
+
+
+def phonenumber_osint(error=False):
+    clear()
+    if error == True:
+        print("PLease enter a valid phone number!")
+    if error == "invalid_country_number":
+        print("Please enter country code!")
+    try:
+        phone_number = input("Enter phone number :")
+    except KeyboardInterrupt:
+        print(sigint)
+        sys.exit()
+    if len(phone_number) < 5:
+        phonenumber_osint(error=True)
+        return
+    try:
+        parsed_number = phonenumbers.parse(phone_number)
+    except:
+        phonenumber_osint(error="invalid_country_number")
+        return
+    region = geocoder.description_for_number(parsed_number, "en")
+    number_timezone = timezone.time_zones_for_number(parsed_number)
+    carrier_name = carrier.name_for_number(parsed_number, 'en')
+    stylized_data = f"""
+    Country          : {region}
+    Timezone        : {number_timezone}
+    Carrier Name    : {carrier_name} 
+    """
+    print(stylized_data)
+    print("""
+    0|  BACK
+
+    1|  Save
+    2|  New Query
+            """)
+    while True:
+        try:
+            choice = input(default_input_text)
+        except KeyboardInterrupt:
+            print(sigint)
+            sys.exit()
+        if choice == "0":
+            main()
+        if choice == "1":
+            with open(path+"phonenumberosint/" + phone_number + ".txt", "w") as file:
+                file.write(stylized_data)
+            print(f"Saved in {path}/phonenumberosint/{phone_number}.txt\n")
+            continue
+        if choice == "2":
+            phonenumber_osint()
+            break
+        print("Please type a valid option. \n")
+
+
+
+    
+
 
 
 def ip_osint_generate_table(data):
@@ -144,13 +235,15 @@ def ip_osint(error = False):
             main()
             break
         if choice == "1":
-            with open(path + "/iposint/" + ip_adress + ".txt", "w") as file:
+            with open(path + "iposint/" + ip_adress + ".txt", "w") as file:
                 file.write(ip_osint_generate_table(ip_adress_info))
             print(f"Saved in {path}/iposint/{ip_adress}.txt\n")
+            continue
         if choice == "2":
-            with open(path + ip_adress + "__RAW.txt", "w") as file:
+            with open(path + "iposint/" + ip_adress + "__RAW.txt", "w") as file:
                 file.write(str(ip_adress_info))
             print(f"Saved in {path}/iposint/{ip_adress}.__RAWtxt\n")
+            continue
         if choice == "3":
             ip_osint()
             break
@@ -216,13 +309,15 @@ def whois_osint(error = False):
             main()
             break
         if choice == "1":
-            with open(path+"/whoisosint/" + web_adress + ".txt") as file:
+            with open(path+"whoisosint/" + web_adress + ".txt", "w") as file:
                 file.write(whois_osint_generate_table(web_adress_data))
             print(f"Saved in {path}/whoisosint/{web_adress}.txt\n")
+            continue
         if choice == "2":
-            with open(path+"/whoisosint/" + web_adress + "__RAW.txt") as file:
+            with open(path+"whoisosint/" + web_adress + "__RAW.txt", "w") as file:
                 file.write(web_adress_data)
             print(f"Saved in {path}/whoisosint/{web_adress}__RAW.txt\n")
+            continue
         if choice == "3":
             whois_osint()
         print("Please type a valid option.\n")
@@ -287,11 +382,18 @@ def main(update_available = False):
             sys.exit()
         if choice == "0":
             sys.exit()
+        if choice == "c":
+            changelog_menu(update_available)
+            return
         if choice == "1":
             ip_osint()
             break
         if choice == "2":
             whois_osint()
+            break
+        if choice == "3":
+            clear()
+            phonenumber_osint()
             break
         print("Please type a valid option.")
 
